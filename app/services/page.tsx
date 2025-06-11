@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import { SuggestedPages } from "@/components/suggested-pages"
 import Link from "next/link"
 
 export default function ServicesPage() {
@@ -104,7 +105,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Services Grid */}
-      <section className="py-20">
+      <section className="py-20 ">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service, index) => (
@@ -152,7 +153,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Process Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -209,6 +210,9 @@ export default function ServicesPage() {
           </motion.div>
         </div>
       </section>
+
+      <SuggestedPages currentPage={typeof window !== 'undefined' ? window.location.href : undefined} />
+      
 
       <Footer />
     </div>

@@ -142,7 +142,7 @@ export default function AboutPage() {
               className="relative"
             >
               <Image
-                src="/placeholder.svg?height=500&width=600"
+                src="/images/chairs.jpg"
                 alt="Our Story"
                 width={600}
                 height={500}
@@ -154,7 +154,7 @@ export default function AboutPage() {
       </section>
 
       {/* Values Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -237,7 +237,7 @@ export default function AboutPage() {
       </section>
 
       {/* Team Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 50 }}

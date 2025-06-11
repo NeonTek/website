@@ -22,6 +22,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import { SuggestedPages } from "@/components/suggested-pages";
 
 export default function HomePage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -173,7 +174,7 @@ export default function HomePage() {
       </section>
 
       {/* Services Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="container py-20 ">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -281,7 +282,7 @@ export default function HomePage() {
       </section>
 
       {/* Portfolio Section */}
-      <section className="py-20 bg-gray-50">
+      <section className=" py-20 bg-background">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -394,6 +395,9 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
+
+      <SuggestedPages currentPage={typeof window !== 'undefined' ? window.location.href : undefined} />
+
 
       <Footer />
 
