@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useState } from "react";
 
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
@@ -53,10 +54,52 @@ export default function ContactPage() {
     },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [form, setForm] = useState({
+    fname: '',
+    lname: '',
+    email: '',
+    phone: '',
+    message: '',
+    service: '',
+    budget: '',
+  });
+
+  const [status, setStatus] = useState('');
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Lets add form submission here - i am suggesting we use nodemailer with serverless architecture
-    console.log("Form submitted");
+    setStatus('Sending...');
+    console.log("Form:", form);
+
+    const res = await fetch('/api/sendmail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setStatus('Message sent!');
+      setForm({
+        fname: '',
+        lname: '',
+        email: '',
+        phone: '',
+        message: '',
+        service: '',
+        budget: '',
+      });
+    } else {
+      setStatus(data.error || 'Something went wrong');
+    }
   };
 
   return (
@@ -121,8 +164,7 @@ export default function ContactPage() {
                 <CardHeader>
                   <CardTitle className="text-2xl">Send us a Message</CardTitle>
                   <CardDescription>
-                    Fill out the form below and we'll get back to you within 24
-                    hours
+                    Fill out the form below and we'll get back to you within 24 hours
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -130,11 +172,25 @@ export default function ContactPage() {
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="firstName">First Name</Label>
-                        <Input id="firstName" placeholder="Neon" required />
+                        <Input
+                          id="firstName"
+                          name="fname"
+                          placeholder="Neon"
+                          value={form.fname}
+                          onChange={handleChange}
+                          required
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="lastName">Last Name</Label>
-                        <Input id="lastName" placeholder="Tek" required />
+                        <Input
+                          id="lastName"
+                          name="lname"
+                          placeholder="Tek"
+                          value={form.lname}
+                          onChange={handleChange}
+                          required
+                        />
                       </div>
                     </div>
 
@@ -142,8 +198,11 @@ export default function ContactPage() {
                       <Label htmlFor="email">Email</Label>
                       <Input
                         id="email"
+                        name="email"
                         type="email"
                         placeholder="neontek@example.com"
+                        value={form.email}
+                        onChange={handleChange}
                         required
                       />
                     </div>
@@ -152,30 +211,28 @@ export default function ContactPage() {
                       <Label htmlFor="phone">Phone Number</Label>
                       <Input
                         id="phone"
+                        name="phone"
                         type="tel"
                         placeholder="+254 (764)-514179"
+                        value={form.phone}
+                        onChange={handleChange}
                       />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="service">Service Interested In</Label>
-                      <Select>
+                      <Select
+                        value={form.service}
+                        onValueChange={(value) => setForm({ ...form, service: value })}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select a service" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="web-development">
-                            Web Development
-                          </SelectItem>
-                          <SelectItem value="mobile-development">
-                            Mobile Development
-                          </SelectItem>
-                          <SelectItem value="cloud-services">
-                            Cloud Services
-                          </SelectItem>
-                          <SelectItem value="software-solutions">
-                            Software Solutions
-                          </SelectItem>
+                          <SelectItem value="web-development">Web Development</SelectItem>
+                          <SelectItem value="mobile-development">Mobile Development</SelectItem>
+                          <SelectItem value="cloud-services">Cloud Services</SelectItem>
+                          <SelectItem value="software-solutions">Software Solutions</SelectItem>
                           <SelectItem value="consulting">Consulting</SelectItem>
                         </SelectContent>
                       </Select>
@@ -183,20 +240,17 @@ export default function ContactPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="budget">Project Budget</Label>
-                      <Select>
+                      <Select
+                        value={form.budget}
+                        onValueChange={(value) => setForm({ ...form, budget: value })}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select budget range" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="5k-10k">
-                            KES5,000 - KES10,000
-                          </SelectItem>
-                          <SelectItem value="10k-25k">
-                            KES10,000 - KES25,000
-                          </SelectItem>
-                          <SelectItem value="25k-50k">
-                            KES25,000 - KES50,000
-                          </SelectItem>
+                          <SelectItem value="5k-10k">KES5,000 - KES10,000</SelectItem>
+                          <SelectItem value="10k-25k">KES10,000 - KES25,000</SelectItem>
+                          <SelectItem value="25k-50k">KES25,000 - KES50,000</SelectItem>
                           <SelectItem value="50k+">KES50,000+</SelectItem>
                         </SelectContent>
                       </Select>
@@ -206,8 +260,11 @@ export default function ContactPage() {
                       <Label htmlFor="message">Message</Label>
                       <Textarea
                         id="message"
+                        name="message"
                         placeholder="Tell us about your project..."
                         rows={5}
+                        value={form.message}
+                        onChange={handleChange}
                         required
                       />
                     </div>
@@ -215,16 +272,19 @@ export default function ContactPage() {
                     <Button
                       type="submit"
                       className="w-full bg-cyan-500 hover:bg-cyan-600"
+                      disabled={status === 'Sending...'}
                     >
                       <Send className="mr-2 h-4 w-4" />
-                      Send Message
+                      {status === 'Sending...' ? 'Sending...' : 'Send Message'}
                     </Button>
+
+                    {status && <p className="text-center text-sm mt-2">{status}</p>}
                   </form>
                 </CardContent>
               </Card>
             </motion.div>
 
-            {/* Map and Additional Info */}
+            {/* Map and FAQ */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -232,52 +292,48 @@ export default function ContactPage() {
               viewport={{ once: true }}
               className="space-y-8"
             >
-              {/* Map */}
               <Card>
                 <CardHeader>
                   <CardTitle>Our Location</CardTitle>
-                  <CardDescription>
-                    Visit us at our office in Digital City
-                  </CardDescription>
+                  <CardDescription>Visit us at our office in Digital City</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
-                     <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d510564.6510983849!2d36.5170366233175!3d-1.3031872947447523!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1172d84d49a7%3A0xf7cf0254b297924c!2sNairobi!5e0!3m2!1sen!2ske!4v1749645027818!5m2!1sen!2ske" width="600" height="450" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d510564.6510983849!2d36.5170366233175!3d-1.3031872947447523!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1172d84d49a7%3A0xf7cf0254b297924c!2sNairobi!5e0!3m2!1sen!2ske!4v1749645027818!5m2!1sen!2ske"
+                      width="600"
+                      height="450"
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    ></iframe>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* FAQ */}
               <Card>
                 <CardHeader>
                   <CardTitle>Frequently Asked Questions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <h4 className="font-semibold mb-2">
-                      How long does a typical project take?
-                    </h4>
+                    <h4 className="font-semibold mb-2">How long does a typical project take?</h4>
                     <p className="text-gray-600 text-sm">
-                      Project timelines vary based on complexity, but most
-                      projects are completed within 2-6 months.
+                      Project timelines vary based on complexity, but most projects are completed
+                      within 2-6 months.
                     </p>
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-2">
-                      Do you provide ongoing support?
-                    </h4>
+                    <h4 className="font-semibold mb-2">Do you provide ongoing support?</h4>
                     <p className="text-gray-600 text-sm">
-                      Yes, we offer comprehensive support and maintenance
-                      packages for all our projects.
+                      Yes, we offer comprehensive support and maintenance packages for all our
+                      projects.
                     </p>
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-2">
-                      Can you work with our existing team?
-                    </h4>
+                    <h4 className="font-semibold mb-2">Can you work with our existing team?</h4>
                     <p className="text-gray-600 text-sm">
-                      We collaborate seamlessly with in-house teams and other
-                      vendors.
+                      We collaborate seamlessly with in-house teams and other vendors.
                     </p>
                   </div>
                 </CardContent>
